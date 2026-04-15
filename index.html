@@ -6,7 +6,7 @@
 <title>NIT SCOTCH — Summer Tournament 2026</title>
 <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Playfair+Display:ital,wght@0,700;1,400&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
 <style>
-  :root{--green:#1a3a1f;--green-light:#4a8c54;--gold:#c9922a;--gold-light:#e8b84b;--cream:#f5f0e8;--white:#fefefe;--dark:#0f1f12;--hogan:#3a6b8a;--sarazen:#6b3a8a;--morris:#8a6b3a;--vardon:#3a8a5a;}
+  :root{--green:#1a3a1f;--green-light:#4a8c54;--gold:#c9922a;--gold-light:#e8b84b;--cream:#f5f0e8;--white:#fefefe;--dark:#0f1f12;--hogan:#3a6b8a;--sarazen:#6b3a8a;--morris:#8a6b3a;--woods:#3a8a5a;}
   *{margin:0;padding:0;box-sizing:border-box;}
   body{background:var(--dark);color:var(--cream);font-family:'DM Sans',sans-serif;overflow-x:hidden;}
 
@@ -47,11 +47,11 @@
   .div-hogan{color:#7bb8d4;border-color:#3a6b8a;}
   .div-sarazen{color:#b87bd4;border-color:#6b3a8a;}
   .div-morris{color:#d4b87b;border-color:#8a6b3a;}
-  .div-vardon{color:#7bd4a0;border-color:#3a8a5a;}
+  .div-woods{color:#7bd4a0;border-color:#3a8a5a;}
   .badge-hogan{background:rgba(58,107,138,.2);color:#7bb8d4;border:1px solid rgba(58,107,138,.4);}
   .badge-sarazen{background:rgba(107,58,138,.2);color:#b87bd4;border:1px solid rgba(107,58,138,.4);}
   .badge-morris{background:rgba(138,107,58,.2);color:#d4b87b;border:1px solid rgba(138,107,58,.4);}
-  .badge-vardon{background:rgba(58,138,90,.2);color:#7bd4a0;border:1px solid rgba(58,138,90,.4);}
+  .badge-woods{background:rgba(58,138,90,.2);color:#7bd4a0;border:1px solid rgba(58,138,90,.4);}
   .div-badge{font-size:.62rem;letter-spacing:.15em;text-transform:uppercase;padding:.2rem .6rem;border-radius:2px;font-weight:500;}
 
   /* STANDINGS */
@@ -88,7 +88,7 @@
   .match-card{background:rgba(255,255,255,.025);border:1px solid rgba(255,255,255,.07);border-radius:4px;padding:1rem 1.2rem;display:flex;align-items:center;gap:1rem;transition:border-color .2s;}
   .match-card:hover{border-color:rgba(201,146,42,.25);}
   .match-div-stripe{width:3px;height:40px;border-radius:2px;flex-shrink:0;}
-  .stripe-hogan{background:#3a6b8a;} .stripe-sarazen{background:#6b3a8a;} .stripe-morris{background:#8a6b3a;} .stripe-vardon{background:#3a8a5a;}
+  .stripe-hogan{background:#3a6b8a;} .stripe-sarazen{background:#6b3a8a;} .stripe-morris{background:#8a6b3a;} .stripe-woods{background:#3a8a5a;}
   .match-teams{flex:1;}
   .match-team{font-size:.85rem;color:var(--white);font-weight:500;line-height:1.4;}
   .match-vs{font-size:.65rem;color:rgba(245,240,232,.3);letter-spacing:.1em;}
@@ -102,7 +102,7 @@
   .div-hogan-bg{background:rgba(58,107,138,.15);border-bottom:1px solid rgba(58,107,138,.3);}
   .div-sarazen-bg{background:rgba(107,58,138,.15);border-bottom:1px solid rgba(107,58,138,.3);}
   .div-morris-bg{background:rgba(138,107,58,.15);border-bottom:1px solid rgba(138,107,58,.3);}
-  .div-vardon-bg{background:rgba(58,138,90,.15);border-bottom:1px solid rgba(58,138,90,.3);}
+  .div-woods-bg{background:rgba(58,138,90,.15);border-bottom:1px solid rgba(58,138,90,.3);}
   .division-name{font-family:'Bebas Neue',sans-serif;font-size:1.2rem;letter-spacing:.06em;}
   .division-hcp{font-size:.68rem;color:rgba(245,240,232,.35);letter-spacing:.08em;}
   .division-team{padding:.65rem 1.2rem;border-bottom:1px solid rgba(255,255,255,.04);font-size:.83rem;color:rgba(245,240,232,.8);display:flex;justify-content:space-between;align-items:center;}
@@ -157,7 +157,7 @@
   .bp-hogan{background:rgba(58,107,138,.2);border:1px solid rgba(58,107,138,.3);color:#7bb8d4;}
   .bp-sarazen{background:rgba(107,58,138,.2);border:1px solid rgba(107,58,138,.3);color:#b87bd4;}
   .bp-morris{background:rgba(138,107,58,.2);border:1px solid rgba(138,107,58,.3);color:#d4b87b;}
-  .bp-vardon{background:rgba(58,138,90,.2);border:1px solid rgba(58,138,90,.3);color:#7bd4a0;}
+  .bp-woods{background:rgba(58,138,90,.2);border:1px solid rgba(58,138,90,.3);color:#7bd4a0;}
   .playoff-bracket{display:grid;grid-template-columns:repeat(4,1fr);gap:1rem;margin-top:1rem;}
   @media(max-width:700px){.playoff-bracket{grid-template-columns:1fr 1fr;}}
   .playoff-round{display:flex;flex-direction:column;gap:.5rem;}
@@ -355,7 +355,7 @@
     </table>
   </div>
 
-  <!-- VARDON -->
+  <!-- woods -->
   <div id="panel-Woods" class="standings-panel">
     <table class="standings-table">
       <thead><tr><th>#</th><th>Team</th><th>W</th><th>L</th><th>Bye</th><th>Pts</th></tr></thead>
@@ -414,8 +414,8 @@
     </div>
 
     <div class="division-card">
-      <div class="division-header div-vardon-bg">
-        <div class="division-name div-vardon">Vardon</div>
+      <div class="division-header div-woods-bg">
+        <div class="division-name div-woods">woods</div>
         <div class="division-hcp">Avg HCP ~15.1</div>
       </div>
       <div class="division-team"><span>Joslyn / Wedeking</span><span class="division-team-hcp">6.1</span></div>
@@ -574,13 +574,13 @@
   <div class="players-grid" id="players-grid">
 
     <div class="team-card" data-team="Booghier Routzon Phillip Paul">
-      <div class="team-card-header"><div class="team-card-name">Booghier / Routzon</div><span class="div-badge badge-vardon">Vardon</span></div>
+      <div class="team-card-header"><div class="team-card-name">Booghier / Routzon</div><span class="div-badge badge-woods">woods</span></div>
       <div class="player-row"><div class="player-info"><div class="player-fullname">Phillip Booghier</div><div class="player-contact"><a href="mailto:phillip@phillipbooghier.com" style="color:inherit;text-decoration:none;">phillip@phillipbooghier.com</a> &middot; 303-961-6956</div></div><div><div class="player-hcp-badge">20.0</div><div class="player-hcp-label">HCP</div></div></div>
       <div class="player-row"><div class="player-info"><div class="player-fullname">Paul Routzon</div><div class="player-contact"><a href="mailto:prwally1@me.com" style="color:inherit;text-decoration:none;">prwally1@me.com</a></div></div><div><div class="player-hcp-badge">19.0</div><div class="player-hcp-label">HCP</div></div></div>
     </div>
 
     <div class="team-card" data-team="Bowman Lindquist Kevin David">
-      <div class="team-card-header"><div class="team-card-name">Bowman / Lindquist</div><span class="div-badge badge-vardon">Vardon</span></div>
+      <div class="team-card-header"><div class="team-card-name">Bowman / Lindquist</div><span class="div-badge badge-woods">woods</span></div>
       <div class="player-row"><div class="player-info"><div class="player-fullname">Kevin Bowman</div><div class="player-contact"><a href="mailto:kevinwbowman@yahoo.com" style="color:inherit;text-decoration:none;">kevinwbowman@yahoo.com</a> &middot; 415-632-9664</div></div><div><div class="player-hcp-badge">5.4</div><div class="player-hcp-label">HCP</div></div></div>
       <div class="player-row"><div class="player-info"><div class="player-fullname">David Lindquist</div><div class="player-contact"><a href="mailto:davidlqst@gmail.com" style="color:inherit;text-decoration:none;">davidlqst@gmail.com</a> &middot; 720-648-4292</div></div><div><div class="player-hcp-badge">0.9</div><div class="player-hcp-label">HCP</div></div></div>
     </div>
@@ -610,13 +610,13 @@
     </div>
 
     <div class="team-card" data-team="Insana Sanduk Kevin Joe">
-      <div class="team-card-header"><div class="team-card-name">Insana / Sanduk</div><span class="div-badge badge-vardon">Vardon</span></div>
+      <div class="team-card-header"><div class="team-card-name">Insana / Sanduk</div><span class="div-badge badge-woods">woods</span></div>
       <div class="player-row"><div class="player-info"><div class="player-fullname">Kevin Insana</div><div class="player-contact"><a href="mailto:kinsana28@gmail.com" style="color:inherit;text-decoration:none;">kinsana28@gmail.com</a> &middot; 303-917-8205</div></div><div><div class="player-hcp-badge">5.3</div><div class="player-hcp-label">HCP</div></div></div>
       <div class="player-row"><div class="player-info"><div class="player-fullname">Joe Sanduk</div><div class="player-contact"><a href="mailto:joe.sanduk@yahoo.com" style="color:inherit;text-decoration:none;">joe.sanduk@yahoo.com</a> &middot; 805-402-0753</div></div><div><div class="player-hcp-badge">6.5</div><div class="player-hcp-label">HCP</div></div></div>
     </div>
 
     <div class="team-card" data-team="Joslyn Wedeking Dillon Pat">
-      <div class="team-card-header"><div class="team-card-name">Joslyn / Wedeking</div><span class="div-badge badge-vardon">Vardon</span></div>
+      <div class="team-card-header"><div class="team-card-name">Joslyn / Wedeking</div><span class="div-badge badge-woods">woods</span></div>
       <div class="player-row"><div class="player-info"><div class="player-fullname">Dillon Joslyn</div><div class="player-contact"><a href="mailto:djoslyn@redstone.bank" style="color:inherit;text-decoration:none;">djoslyn@redstone.bank</a> &middot; 720-384-3997</div></div><div><div class="player-hcp-badge">0.8</div><div class="player-hcp-label">HCP</div></div></div>
       <div class="player-row"><div class="player-info"><div class="player-fullname">Pat Wedeking</div><div class="player-contact"><a href="mailto:patwedeking@gmail.com" style="color:inherit;text-decoration:none;">patwedeking@gmail.com</a> &middot; 206-200-1996</div></div><div><div class="player-hcp-badge">5.3</div><div class="player-hcp-label">HCP</div></div></div>
     </div>
@@ -664,7 +664,7 @@
     </div>
 
     <div class="team-card" data-team="Rhodes Mealhow Eric Brett">
-      <div class="team-card-header"><div class="team-card-name">Rhodes / Mealhow</div><span class="div-badge badge-vardon">Vardon</span></div>
+      <div class="team-card-header"><div class="team-card-name">Rhodes / Mealhow</div><span class="div-badge badge-woods">woods</span></div>
       <div class="player-row"><div class="player-info"><div class="player-fullname">Eric Rhodes</div><div class="player-contact"><a href="mailto:eric.rhodes@rmwireless.com" style="color:inherit;text-decoration:none;">eric.rhodes@rmwireless.com</a> &middot; 303-304-6069</div></div><div><div class="player-hcp-badge">4.8</div><div class="player-hcp-label">HCP</div></div></div>
       <div class="player-row"><div class="player-info"><div class="player-fullname">Brett Mealhow</div><div class="player-contact"><a href="mailto:mrhow@comcast.net" style="color:inherit;text-decoration:none;">mrhow@comcast.net</a> &middot; 720-207-3595</div></div><div><div class="player-hcp-badge">7.7</div><div class="player-hcp-label">HCP</div></div></div>
     </div>
@@ -790,7 +790,7 @@
         <div class="bracket-pill bp-hogan"><div class="bracket-pill-name">Hogan</div><div class="bracket-pill-sub">5 Teams</div></div>
         <div class="bracket-pill bp-sarazen"><div class="bracket-pill-name">Sarazen</div><div class="bracket-pill-sub">5 Teams</div></div>
         <div class="bracket-pill bp-morris"><div class="bracket-pill-name">Morris</div><div class="bracket-pill-sub">5 Teams</div></div>
-        <div class="bracket-pill bp-vardon"><div class="bracket-pill-name">Vardon</div><div class="bracket-pill-sub">5 Teams</div></div>
+        <div class="bracket-pill bp-woods"><div class="bracket-pill-name">woods</div><div class="bracket-pill-sub">5 Teams</div></div>
       </div>
     </div>
 
@@ -861,7 +861,7 @@ const TEAMS = {
   'Wedeking / Purcell':'Nicklaus','Withey / Broach':'Jones'
 };
 
-const DIV_COLORS = {hogan:'#7bb8d4', sarazen:'#b87bd4', morris:'#d4b87b', vardon:'#7bd4a0'};
+const DIV_COLORS = {hogan:'#7bb8d4', sarazen:'#b87bd4', morris:'#d4b87b', woods:'#7bd4a0'};
 
 let cachedResults = [];
 
