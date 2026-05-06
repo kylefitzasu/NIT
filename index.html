@@ -1277,7 +1277,7 @@ async function submitMatchDate() {
   try {
     await fetch(API, {
       method: 'POST', mode: 'no-cors',
-      headers: { 'Content-Type': 'application/json' },
+      headers: { 'Content-Type': 'text/plain' },
       body: JSON.stringify({ type: 'matchdate', division, homeTeam, awayTeam, matchDate, matchTime, notes })
     });
     showCalMsg('Match date posted! Everyone can now see it in the calendar.', true);
@@ -1431,10 +1431,7 @@ async function fetchResults() {
     const res = await fetch(RESULTS_CSV);
     const text = await res.text();
     const firstLine = text.split('\n')[0].replace(/\r/g,'');
-    console.log('Results CSV first line:', firstLine);
-    // If sheet has no header row matching expected format, results are empty
     if (!firstLine.includes('winner') && !firstLine.includes('Winner')) {
-      console.log('Score Results sheet has no data or missing headers');
       cachedResults = [];
       return;
     }
@@ -1449,8 +1446,7 @@ async function fetchResults() {
         timestamp:  r.timestamp  || r.Timestamp   || ''
       };
     }).filter(function(r) { return r.winner; });
-    console.log('Results loaded:', cachedResults.length);
-  } catch(e) { console.error('fetchResults error:', e); cachedResults = []; }
+  } catch(e) { cachedResults = []; }
 }
 
 async function fetchRegistrations() {
@@ -1465,9 +1461,7 @@ async function fetchMatchDates() {
   try {
     const res = await fetch(DATES_CSV);
     const text = await res.text();
-    console.log('MatchDates CSV raw:', text.substring(0, 500));
     const rows = parseCSV(text);
-    console.log('MatchDates parsed rows:', rows.length, rows[0]);
     cachedMatchDates = rows.map(function(r) {
       return {
         division:  r.division  || '',
@@ -1478,11 +1472,7 @@ async function fetchMatchDates() {
         notes:     r.notes     || ''
       };
     }).filter(function(r) { return r.homeTeam; });
-    console.log('cachedMatchDates after filter:', cachedMatchDates.length, cachedMatchDates);
-  } catch(e) {
-    console.error('fetchMatchDates error:', e);
-    cachedMatchDates = [];
-  }
+  } catch(e) { cachedMatchDates = []; }
 }
 
 function showDiv(name, btn) {
@@ -1531,7 +1521,7 @@ async function submitRegistration() {
   const teamName = (last && partnerLast) ? last + ' / ' + partnerLast : '';
   btn.textContent = 'Submitting\u2026'; btn.disabled = true;
   try {
-    await fetch(API, { method:'POST', mode:'no-cors', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ type:'registration', firstName:first, lastName:last, email, phone, partnerFirstName:partnerFirst, partnerLastName:partnerLast, teamName }) });
+    await fetch(API, { method:'POST', mode:'no-cors', headers:{'Content-Type':'text/plain'}, body: JSON.stringify({ type:'registration', firstName:first, lastName:last, email, phone, partnerFirstName:partnerFirst, partnerLastName:partnerLast, teamName }) });
     ['reg-first','reg-last','reg-email','reg-phone','reg-partner-first','reg-partner-last'].forEach(id => document.getElementById(id).value = '');
     document.getElementById('team-preview').style.display = 'none';
     const teamMsg = teamName ? ' Your team: <strong>' + teamName + '</strong>.' : '';
@@ -1564,7 +1554,7 @@ async function submitResult() {
   if (!extraHoles) { showErr('Please select the match result.'); return; }
   btn.textContent = 'Submitting\u2026'; btn.disabled = true;
   try {
-    await fetch(API, { method:'POST', mode:'no-cors', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ winner, loser, extraHoles: extraHoles === 'yes', date, notes }) });
+    await fetch(API, { method:'POST', mode:'no-cors', headers:{'Content-Type':'text/plain'}, body: JSON.stringify({ winner, loser, extraHoles: extraHoles === 'yes', date, notes }) });
     msg.textContent = 'Result submitted! Standings will update shortly.';
     msg.style.display = 'block'; msg.style.background = 'rgba(74,140,84,.2)'; msg.style.color = '#6fcf97'; msg.style.border = '1px solid rgba(74,140,84,.3)';
     document.getElementById('winner').value = ''; document.getElementById('loser').value = ''; document.getElementById('extraHoles').value = ''; document.getElementById('matchDate').value = ''; document.getElementById('matchNotes').value = '';
