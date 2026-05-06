@@ -1275,11 +1275,8 @@ async function submitMatchDate() {
   btn.textContent = 'Posting\u2026'; btn.disabled = true;
 
   try {
-    await fetch(API, {
-      method: 'POST', mode: 'no-cors',
-      headers: { 'Content-Type': 'text/plain' },
-      body: JSON.stringify({ type: 'matchdate', division, homeTeam, awayTeam, matchDate, matchTime, notes })
-    });
+    const calParams = new URLSearchParams({ action:'matchdate', division, homeTeam, awayTeam, matchDate, matchTime, notes });
+    await fetch(API + '?' + calParams.toString(), { method:'GET', mode:'no-cors' });
     showCalMsg('Match date posted! Everyone can now see it in the calendar.', true);
     document.getElementById('cal-division').value = '';
     document.getElementById('cal-home').innerHTML = '<option value="">Select division first&hellip;</option>';
@@ -1521,7 +1518,8 @@ async function submitRegistration() {
   const teamName = (last && partnerLast) ? last + ' / ' + partnerLast : '';
   btn.textContent = 'Submitting\u2026'; btn.disabled = true;
   try {
-    await fetch(API, { method:'POST', mode:'no-cors', headers:{'Content-Type':'text/plain'}, body: JSON.stringify({ type:'registration', firstName:first, lastName:last, email, phone, partnerFirstName:partnerFirst, partnerLastName:partnerLast, teamName }) });
+    const regParams = new URLSearchParams({ action:'registration', firstName:first, lastName:last, email, phone, partnerFirstName:partnerFirst, partnerLastName:partnerLast, teamName });
+    await fetch(API + '?' + regParams.toString(), { method:'GET', mode:'no-cors' });
     ['reg-first','reg-last','reg-email','reg-phone','reg-partner-first','reg-partner-last'].forEach(id => document.getElementById(id).value = '');
     document.getElementById('team-preview').style.display = 'none';
     const teamMsg = teamName ? ' Your team: <strong>' + teamName + '</strong>.' : '';
@@ -1554,7 +1552,8 @@ async function submitResult() {
   if (!extraHoles) { showErr('Please select the match result.'); return; }
   btn.textContent = 'Submitting\u2026'; btn.disabled = true;
   try {
-    await fetch(API, { method:'POST', mode:'no-cors', headers:{'Content-Type':'text/plain'}, body: JSON.stringify({ winner, loser, extraHoles: extraHoles === 'yes', date, notes }) });
+    const resultParams = new URLSearchParams({ action:'result', winner, loser, extraHoles: extraHoles === 'yes' ? 'Yes' : 'No', date, notes });
+    await fetch(API + '?' + resultParams.toString(), { method:'GET', mode:'no-cors' });
     msg.textContent = 'Result submitted! Standings will update shortly.';
     msg.style.display = 'block'; msg.style.background = 'rgba(74,140,84,.2)'; msg.style.color = '#6fcf97'; msg.style.border = '1px solid rgba(74,140,84,.3)';
     document.getElementById('winner').value = ''; document.getElementById('loser').value = ''; document.getElementById('extraHoles').value = ''; document.getElementById('matchDate').value = ''; document.getElementById('matchNotes').value = '';
