@@ -1524,35 +1524,36 @@ async function fetchHandicaps() {
 }
 
 function renderHandicaps() {
-  // Update each player card with live handicap data
-  Object.keys(cachedHandicaps).forEach(function(team) {
-    const data = cachedHandicaps[team];
-    // Find the team card
-    const cards = document.querySelectorAll('#players-grid .team-card');
-    cards.forEach(function(card) {
-      const nameEl = card.querySelector('.team-card-name');
-      if (!nameEl || nameEl.textContent.trim() !== team) return;
-      // Update or insert handicap display
-      let hdcpEl = card.querySelector('.team-hdcp-display');
-      if (!hdcpEl) {
-        hdcpEl = document.createElement('div');
-        hdcpEl.className = 'team-hdcp-display';
-        hdcpEl.style.cssText = 'padding:.5rem 1rem .25rem;border-top:1px solid rgba(255,255,255,.06);margin-top:.25rem;';
-        card.appendChild(hdcpEl);
-      }
-      hdcpEl.innerHTML =
-        '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:.3rem;">' +
-          '<span style="font-size:.62rem;letter-spacing:.12em;text-transform:uppercase;color:rgba(245,240,232,.4);">Course HDCP (Lake/Valley Blue)</span>' +
-          '<span style="font-family:'Bebas Neue',sans-serif;font-size:1.1rem;color:var(--gold-light);letter-spacing:.05em;">' + data.teamCH + '</span>' +
-        '</div>' +
-        '<div style="font-size:.72rem;color:rgba(245,240,232,.45);">' +
-          data.p1.name + ' <span style="color:rgba(245,240,232,.3);">HI ' + data.p1.hi.toFixed(1) + ' → CH ' + Math.round(data.p1.ch) + '</span>' +
-        '</div>' +
-        '<div style="font-size:.72rem;color:rgba(245,240,232,.45);">' +
-          data.p2.name + ' <span style="color:rgba(245,240,232,.3);">HI ' + data.p2.hi.toFixed(1) + ' → CH ' + Math.round(data.p2.ch) + '</span>' +
-        '</div>' +
-        '<div style="font-size:.65rem;color:rgba(245,240,232,.25);margin-top:.2rem;">Combined CH ' + data.totalCH.toFixed(1) + ' ÷ 2 = ' + data.teamCH + '</div>';
-    });
+  const teams = Object.keys(cachedHandicaps);
+  console.log('renderHandicaps: ' + teams.length + ' teams', teams);
+  if (!teams.length) return;
+
+  document.querySelectorAll('#players-grid .team-card').forEach(function(card) {
+    const nameEl = card.querySelector('.team-card-name');
+    if (!nameEl) return;
+    const cardTeam = nameEl.textContent.trim();
+    const data = cachedHandicaps[cardTeam];
+    if (!data) return;
+
+    let hdcpEl = card.querySelector('.team-hdcp-display');
+    if (!hdcpEl) {
+      hdcpEl = document.createElement('div');
+      hdcpEl.className = 'team-hdcp-display';
+      hdcpEl.style.cssText = 'padding:.5rem 1rem .4rem;border-top:1px solid rgba(255,255,255,.06);margin-top:.25rem;';
+      card.appendChild(hdcpEl);
+    }
+    hdcpEl.innerHTML =
+      '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:.35rem;">' +
+        '<span style="font-size:.62rem;letter-spacing:.12em;text-transform:uppercase;color:rgba(245,240,232,.4);">Course HDCP &middot; Lake/Valley Blue</span>' +
+        '<span style="font-family:\'Bebas Neue\',sans-serif;font-size:1.15rem;color:var(--gold-light);letter-spacing:.05em;">' + data.teamCH + '</span>' +
+      '</div>' +
+      '<div style="font-size:.72rem;color:rgba(245,240,232,.5);">' +
+        data.p1.name + ' &nbsp;<span style="color:rgba(245,240,232,.3);">HI&nbsp;' + data.p1.hi.toFixed(1) + '&nbsp;&rarr;&nbsp;CH&nbsp;' + Math.round(data.p1.ch) + '</span>' +
+      '</div>' +
+      '<div style="font-size:.72rem;color:rgba(245,240,232,.5);">' +
+        data.p2.name + ' &nbsp;<span style="color:rgba(245,240,232,.3);">HI&nbsp;' + data.p2.hi.toFixed(1) + '&nbsp;&rarr;&nbsp;CH&nbsp;' + Math.round(data.p2.ch) + '</span>' +
+      '</div>' +
+      '<div style="font-size:.63rem;color:rgba(245,240,232,.22);margin-top:.25rem;">Total CH&nbsp;' + data.totalCH.toFixed(1) + '&nbsp;&divide;&nbsp;2&nbsp;=&nbsp;<strong style="color:rgba(245,240,232,.4);">' + data.teamCH + '</strong></div>';
   });
 }
 
