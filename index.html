@@ -1497,7 +1497,7 @@ async function fetchHandicaps() {
       // Course Handicap = HI * (Slope/113) + (Rating - Par)
       // Lake/Valley Blue: Slope=126, Rating=72.1, Par=72
       const slope = 126, rating = 72.1, par = 72;
-      const ch = hi * (slope / 113) + (rating - par);
+      const ch = Math.round(hi * (slope / 113) + (rating - par));
       byTeam[r.team].push({
         name: (r.firstName + ' ' + r.lastName).trim(),
         hi: hi,
@@ -1510,13 +1510,13 @@ async function fetchHandicaps() {
       const players = byTeam[team];
       if (players.length < 2) return;
       const totalCH = players[0].ch + players[1].ch;
-      // Divide by 2, round halves up
-      const teamCH = Math.ceil(totalCH / 2 * 2) / 2; // keep .5
-      const display = Math.ceil(totalCH / 2); // round up to nearest whole
+      // (CH1 + CH2) / 2, round half up only (5.5 → 6, 5.0 → 5)
+      const raw = totalCH / 2;
+      const teamCH = Math.floor(raw) + (raw % 1 >= 0.5 ? 1 : 0);
       cachedHandicaps[team] = {
         p1: players[0], p2: players[1],
         totalCH: totalCH,
-        teamCH: display
+        teamCH: teamCH
       };
     });
     renderHandicaps();
@@ -1553,7 +1553,7 @@ function renderHandicaps() {
       '<div style="font-size:.72rem;color:rgba(245,240,232,.5);">' +
         data.p2.name + ' &nbsp;<span style="color:rgba(245,240,232,.3);">HI&nbsp;' + data.p2.hi.toFixed(1) + '&nbsp;&rarr;&nbsp;CH&nbsp;' + Math.round(data.p2.ch) + '</span>' +
       '</div>' +
-      '<div style="font-size:.63rem;color:rgba(245,240,232,.22);margin-top:.25rem;">Total CH&nbsp;' + data.totalCH.toFixed(1) + '&nbsp;&divide;&nbsp;2&nbsp;=&nbsp;<strong style="color:rgba(245,240,232,.4);">' + data.teamCH + '</strong></div>';
+      '<div style="font-size:.63rem;color:rgba(245,240,232,.22);margin-top:.25rem;">(' + data.p1.ch + ' + ' + data.p2.ch + ') &divide; 2 = <strong style="color:rgba(245,240,232,.4);">' + data.teamCH + '</strong></div>';
   });
 }
 
