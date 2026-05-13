@@ -1114,9 +1114,11 @@ const API = 'https://script.google.com/macros/s/AKfycbwHwRU64FnguK5C-SnmGILVSQeD
 const RESULTS_CSV = 'https://docs.google.com/spreadsheets/d/1liV8yUOaW7fbLM_RWH6Vey9CMdKO7Qw3Qsgsd1Pk-_U/export?format=csv&gid=0';
 const REG_CSV     = 'https://docs.google.com/spreadsheets/d/1liV8yUOaW7fbLM_RWH6Vey9CMdKO7Qw3Qsgsd1Pk-_U/export?format=csv&gid=2135879661';
 const DATES_CSV   = 'https://docs.google.com/spreadsheets/d/1liV8yUOaW7fbLM_RWH6Vey9CMdKO7Qw3Qsgsd1Pk-_U/export?format=csv&gid=1861237823';
+const HDCP_CSV    = 'https://docs.google.com/spreadsheets/d/1liV8yUOaW7fbLM_RWH6Vey9CMdKO7Qw3Qsgsd1Pk-_U/export?format=csv&gid=958637968';
 let cachedResults = [];
 let cachedRegistrations = [];
 let cachedMatchDates = [];
+let cachedHandicaps = {}; // { teamName: { p1: {name, hi, ch}, p2: {name, hi, ch}, combined, display } }
 let standingsData = [];
 let currentSortCol = 'team';
 let currentSortDir = 'asc';
@@ -1480,6 +1482,80 @@ async function fetchMatchDates() {
   } catch(e) { cachedMatchDates = []; }
 }
 
+async function fetchHandicaps() {
+  try {
+    const res = await fetch(HDCP_CSV);
+    const text = await res.text();
+    const rows = parseCSV(text);
+    // Build lookup: teamName -> array of players
+    const byTeam = {};
+    rows.forEach(function(r) {
+      if (!r.team || !r.handicap || r.handicap === 'N/A') return;
+      if (!byTeam[r.team]) byTeam[r.team] = [];
+      const hi = parseFloat(r.handicap);
+      if (isNaN(hi)) return;
+      // Course Handicap = HI * (Slope/113) + (Rating - Par)
+      // Lake/Valley Blue: Slope=126, Rating=72.1, Par=72
+      const slope = 126, rating = 72.1, par = 72;
+      const ch = hi * (slope / 113) + (rating - par);
+      byTeam[r.team].push({
+        name: (r.firstName + ' ' + r.lastName).trim(),
+        hi: hi,
+        ch: ch
+      });
+    });
+    // Compute team combined course handicap
+    cachedHandicaps = {};
+    Object.keys(byTeam).forEach(function(team) {
+      const players = byTeam[team];
+      if (players.length < 2) return;
+      const totalCH = players[0].ch + players[1].ch;
+      // Divide by 2, round halves up
+      const teamCH = Math.ceil(totalCH / 2 * 2) / 2; // keep .5
+      const display = Math.ceil(totalCH / 2); // round up to nearest whole
+      cachedHandicaps[team] = {
+        p1: players[0], p2: players[1],
+        totalCH: totalCH,
+        teamCH: display
+      };
+    });
+    renderHandicaps();
+  } catch(e) { console.error('fetchHandicaps error:', e); }
+}
+
+function renderHandicaps() {
+  // Update each player card with live handicap data
+  Object.keys(cachedHandicaps).forEach(function(team) {
+    const data = cachedHandicaps[team];
+    // Find the team card
+    const cards = document.querySelectorAll('#players-grid .team-card');
+    cards.forEach(function(card) {
+      const nameEl = card.querySelector('.team-card-name');
+      if (!nameEl || nameEl.textContent.trim() !== team) return;
+      // Update or insert handicap display
+      let hdcpEl = card.querySelector('.team-hdcp-display');
+      if (!hdcpEl) {
+        hdcpEl = document.createElement('div');
+        hdcpEl.className = 'team-hdcp-display';
+        hdcpEl.style.cssText = 'padding:.5rem 1rem .25rem;border-top:1px solid rgba(255,255,255,.06);margin-top:.25rem;';
+        card.appendChild(hdcpEl);
+      }
+      hdcpEl.innerHTML =
+        '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:.3rem;">' +
+          '<span style="font-size:.62rem;letter-spacing:.12em;text-transform:uppercase;color:rgba(245,240,232,.4);">Course HDCP (Lake/Valley Blue)</span>' +
+          '<span style="font-family:'Bebas Neue',sans-serif;font-size:1.1rem;color:var(--gold-light);letter-spacing:.05em;">' + data.teamCH + '</span>' +
+        '</div>' +
+        '<div style="font-size:.72rem;color:rgba(245,240,232,.45);">' +
+          data.p1.name + ' <span style="color:rgba(245,240,232,.3);">HI ' + data.p1.hi.toFixed(1) + ' → CH ' + Math.round(data.p1.ch) + '</span>' +
+        '</div>' +
+        '<div style="font-size:.72rem;color:rgba(245,240,232,.45);">' +
+          data.p2.name + ' <span style="color:rgba(245,240,232,.3);">HI ' + data.p2.hi.toFixed(1) + ' → CH ' + Math.round(data.p2.ch) + '</span>' +
+        '</div>' +
+        '<div style="font-size:.65rem;color:rgba(245,240,232,.25);margin-top:.2rem;">Combined CH ' + data.totalCH.toFixed(1) + ' ÷ 2 = ' + data.teamCH + '</div>';
+    });
+  });
+}
+
 function showDiv(name, btn) {
   document.querySelectorAll('.standings-panel').forEach(p => p.classList.remove('active'));
   document.querySelectorAll('.standings-tab').forEach(t => { t.className = 'standings-tab'; });
@@ -1573,6 +1649,7 @@ async function init() {
   await fetchResults();
   await fetchRegistrations();
   await fetchMatchDates();
+  await fetchHandicaps();
   renderStandings(cachedResults);
   renderRecentResults(cachedResults);
   renderRegistrations(cachedRegistrations);
@@ -1581,6 +1658,7 @@ async function init() {
     await fetchResults();
     await fetchRegistrations();
     await fetchMatchDates();
+    await fetchHandicaps();
     renderStandings(cachedResults);
     renderRecentResults(cachedResults);
     renderRegistrations(cachedRegistrations);
