@@ -230,6 +230,7 @@
   <p class="hero-sub">Track matches &middot; Post scores &middot; Rule the leaderboard</p>
   <div class="hero-cta">
     <a href="#submit" class="btn btn-primary">Submit Score</a>
+    <a href="#calendar" class="btn btn-ghost">Match Calendar</a>
     <a href="#standings" class="btn btn-ghost">View Standings</a>
   </div>
 </div>
@@ -265,7 +266,7 @@
   <div class="section-label">&#128101; Roster</div>
   <div class="section-title">Players &amp; Teams</div>
   <p style="color:rgba(245,240,232,.55);font-size:.85rem;">15 of 15 teams registered &middot; All spots filled!</p>
-  <p style="font-size:.82rem;margin-bottom:1.5rem;">
+  <p id="payment-summary" style="font-size:.82rem;margin-bottom:1.5rem;">
     <span style="color:#6fcf97;font-weight:600;">&#10003; 6 paid</span>
     &nbsp;&middot;&nbsp;
     <span style="color:#f2c94c;font-weight:600;">&#189; 1 partial</span>
@@ -972,10 +973,12 @@ const RESULTS_CSV = 'https://docs.google.com/spreadsheets/d/1liV8yUOaW7fbLM_RWH6
 const REG_CSV     = 'https://docs.google.com/spreadsheets/d/1liV8yUOaW7fbLM_RWH6Vey9CMdKO7Qw3Qsgsd1Pk-_U/export?format=csv&gid=2135879661';
 const DATES_CSV   = 'https://docs.google.com/spreadsheets/d/1liV8yUOaW7fbLM_RWH6Vey9CMdKO7Qw3Qsgsd1Pk-_U/export?format=csv&gid=1861237823';
 const HDCP_CSV    = 'https://docs.google.com/spreadsheets/d/1liV8yUOaW7fbLM_RWH6Vey9CMdKO7Qw3Qsgsd1Pk-_U/export?format=csv&gid=958637968';
+const TEAMS_CSV   = 'https://docs.google.com/spreadsheets/d/1liV8yUOaW7fbLM_RWH6Vey9CMdKO7Qw3Qsgsd1Pk-_U/export?format=csv&gid=1436498554';
 let cachedResults = [];
 let cachedRegistrations = [];
 let cachedMatchDates = [];
-let cachedHandicaps = {}; // { teamName: { p1: {name, hi, ch}, p2: {name, hi, ch}, combined, display } }
+let cachedHandicaps = {};
+let cachedPayments = {}; // { teamName: 'paid' | 'partial' | 'unpaid' } // { teamName: { p1: {name, hi, ch}, p2: {name, hi, ch}, combined, display } }
 let standingsData = [];
 let currentSortCol = 'team';
 let currentSortDir = 'asc';
@@ -1418,6 +1421,70 @@ function renderHandicaps() {
   });
 }
 
+async function fetchPayments() {
+  try {
+    const res = await fetch(TEAMS_CSV);
+    const text = await res.text();
+    const rows = parseCSV(text);
+    cachedPayments = {};
+    rows.forEach(function(r) {
+      if (!r.Team) return;
+      const team = r.Team.trim();
+      const payment = (r.Payment || '').toString().trim().toLowerCase();
+      if (payment === 'yes' || payment === 'y') {
+        cachedPayments[team] = 'paid';
+      } else if (payment === '1/2' || payment === 'half' || payment === 'partial') {
+        cachedPayments[team] = 'partial';
+      } else {
+        cachedPayments[team] = 'unpaid';
+      }
+    });
+    renderPayments();
+  } catch(e) { console.error('fetchPayments error:', e); }
+}
+
+function renderPayments() {
+  const badges = {
+    paid:    '<span style="font-size:.6rem;letter-spacing:.12em;text-transform:uppercase;background:rgba(74,140,84,.2);color:#6fcf97;border:1px solid rgba(74,140,84,.35);padding:.2rem .55rem;border-radius:2px;font-weight:600;">&#10003; Paid</span>',
+    partial: '<span style="font-size:.6rem;letter-spacing:.12em;text-transform:uppercase;background:rgba(242,201,76,.15);color:#f2c94c;border:1px solid rgba(242,201,76,.35);padding:.2rem .55rem;border-radius:2px;font-weight:600;">&#189; Partial</span>',
+    unpaid:  '<span style="font-size:.6rem;letter-spacing:.12em;text-transform:uppercase;background:rgba(235,87,87,.15);color:#eb5757;border:1px solid rgba(235,87,87,.35);padding:.2rem .55rem;border-radius:2px;font-weight:600;">&#8226; Unpaid</span>'
+  };
+
+  document.querySelectorAll('#players-grid .team-card').forEach(function(card) {
+    const nameEl = card.querySelector('.team-card-name');
+    if (!nameEl) return;
+    const team = nameEl.textContent.trim();
+    const status = cachedPayments[team];
+    if (!status) return;
+
+    // Find existing payment badge and replace it
+    const header = card.querySelector('.team-card-header');
+    if (!header) return;
+    const existing = header.querySelector('.payment-badge');
+    if (existing) existing.remove();
+
+    const span = document.createElement('span');
+    span.className = 'payment-badge';
+    span.innerHTML = badges[status];
+    header.appendChild(span);
+  });
+
+  // Update payment summary
+  const paid    = Object.values(cachedPayments).filter(function(v){ return v === 'paid'; }).length;
+  const partial = Object.values(cachedPayments).filter(function(v){ return v === 'partial'; }).length;
+  const unpaid  = Object.values(cachedPayments).filter(function(v){ return v === 'unpaid'; }).length;
+  const summary = document.getElementById('payment-summary');
+  if (summary) {
+    summary.innerHTML =
+      '<span style="color:#6fcf97;font-weight:600;">&#10003; ' + paid + ' paid</span>' +
+      ' &nbsp;&middot;&nbsp; ' +
+      '<span style="color:#f2c94c;font-weight:600;">&#189; ' + partial + ' partial</span>' +
+      ' &nbsp;&middot;&nbsp; ' +
+      '<span style="color:#eb5757;font-weight:600;">&#8226; ' + unpaid + ' unpaid</span>' +
+      ' &nbsp;&middot;&nbsp; <span style="color:rgba(245,240,232,.4);font-size:.78rem;">Venmo @kwfitzpatrick</span>';
+  }
+}
+
 function renderScheduleHandicaps() {
   // Annotate each match card in the schedule with team handicaps + strokes
   document.querySelectorAll('.match-card').forEach(function(card) {
@@ -1552,6 +1619,7 @@ async function init() {
   await fetchRegistrations();
   await fetchMatchDates();
   await fetchHandicaps();
+  await fetchPayments();
   renderStandings(cachedResults);
   renderRecentResults(cachedResults);
   renderRegistrations(cachedRegistrations);
@@ -1561,6 +1629,7 @@ async function init() {
     await fetchRegistrations();
     await fetchMatchDates();
     await fetchHandicaps();
+    await fetchPayments();
     renderStandings(cachedResults);
     renderRecentResults(cachedResults);
     renderRegistrations(cachedRegistrations);
