@@ -827,7 +827,7 @@
         <div style="grid-column:1;grid-row:2;padding:3px 8px 3px 0;">
           <div style="background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.1);border-radius:3px;padding:.5rem .8rem;font-size:.75rem;">
             <span style="font-size:.58rem;letter-spacing:.1em;text-transform:uppercase;color:rgba(245,240,232,.25);display:block;margin-bottom:.15rem;">QF &middot; M1</span>
-            <span style="color:var(--gold-light);font-weight:600;">Seed 1</span> <span style="color:rgba(245,240,232,.3);font-size:.7rem;">vs</span> <span style="font-weight:500;">Seed 8</span>
+            <span style="color:var(--gold-light);font-weight:600;">(1) Ray / Park</span> <span style="color:rgba(245,240,232,.3);font-size:.7rem;">vs</span> <span style="font-weight:500;">(8) Eck / Booghier</span>
           </div>
         </div>
 
@@ -835,7 +835,7 @@
         <div style="grid-column:1;grid-row:3;padding:3px 8px 3px 0;">
           <div style="background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.1);border-radius:3px;padding:.5rem .8rem;font-size:.75rem;">
             <span style="font-size:.58rem;letter-spacing:.1em;text-transform:uppercase;color:rgba(245,240,232,.25);display:block;margin-bottom:.15rem;">QF &middot; M2</span>
-            <span style="color:var(--gold-light);font-weight:600;">Seed 2</span> <span style="color:rgba(245,240,232,.3);font-size:.7rem;">vs</span> <span style="font-weight:500;">Seed 7</span>
+            <span style="color:var(--gold-light);font-weight:600;">(4) Zalesky / Withey</span> <span style="color:rgba(245,240,232,.3);font-size:.7rem;">vs</span> <span style="font-weight:500;">(5) Dunsmore / Fitzpatrick</span>
           </div>
         </div>
 
@@ -843,7 +843,7 @@
         <div style="grid-column:1;grid-row:4;padding:3px 8px 3px 0;">
           <div style="background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.1);border-radius:3px;padding:.5rem .8rem;font-size:.75rem;">
             <span style="font-size:.58rem;letter-spacing:.1em;text-transform:uppercase;color:rgba(245,240,232,.25);display:block;margin-bottom:.15rem;">QF &middot; M3</span>
-            <span style="color:var(--gold-light);font-weight:600;">Seed 3</span> <span style="color:rgba(245,240,232,.3);font-size:.7rem;">vs</span> <span style="font-weight:500;">Seed 6</span>
+            <span style="color:var(--gold-light);font-weight:600;">(3) Gervais / Sitzmann</span> <span style="color:rgba(245,240,232,.3);font-size:.7rem;">vs</span> <span style="font-weight:500;">(6) Wedeking / Purcell</span>
           </div>
         </div>
 
@@ -851,7 +851,7 @@
         <div style="grid-column:1;grid-row:5;padding:3px 8px 3px 0;">
           <div style="background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.1);border-radius:3px;padding:.5rem .8rem;font-size:.75rem;">
             <span style="font-size:.58rem;letter-spacing:.1em;text-transform:uppercase;color:rgba(245,240,232,.25);display:block;margin-bottom:.15rem;">QF &middot; M4</span>
-            <span style="color:var(--gold-light);font-weight:600;">Seed 4</span> <span style="color:rgba(245,240,232,.3);font-size:.7rem;">vs</span> <span style="font-weight:500;">Seed 5</span>
+            <span style="color:var(--gold-light);font-weight:600;">(2) Minshall / Travis</span> <span style="color:rgba(245,240,232,.3);font-size:.7rem;">vs</span> <span style="font-weight:500;">(7) Insana / Sanduk</span>
           </div>
         </div>
 
@@ -896,7 +896,7 @@
 
       <div style="margin-top:1.5rem;display:flex;gap:1.5rem;flex-wrap:wrap;border-top:1px solid rgba(255,255,255,.06);padding-top:1rem;">
         <div style="font-size:.72rem;color:rgba(245,240,232,.4);"><span style="color:var(--gold-light);">W-M#</span> = Winner &nbsp; <span style="color:#eb5757;">L-M#</span> = Loser of Match #</div>
-        <div style="font-size:.72rem;color:rgba(245,240,232,.4);">Top 8 teams by total points qualify &mdash; no play-in games</div>
+        <div style="font-size:.72rem;color:rgba(245,240,232,.4);">Seeded by pts &rarr; h2h &rarr; extra hole wins</div>
       </div>
     </div>
 
@@ -969,6 +969,11 @@
 
 <script>
 const API = 'https://script.google.com/macros/s/AKfycbwHwRU64FnguK5C-SnmGILVSQeDqZaToEfEXilP5ROP3PiCZTNLxbi66bAXx88jrKJP/exec';
+function csvUrl(url) {
+  // Route through Apps Script to avoid CORS issues
+  return API + '?action=csv&url=' + encodeURIComponent(url);
+}
+
 const RESULTS_CSV = 'https://docs.google.com/spreadsheets/d/1liV8yUOaW7fbLM_RWH6Vey9CMdKO7Qw3Qsgsd1Pk-_U/export?format=csv&gid=0';
 const REG_CSV     = 'https://docs.google.com/spreadsheets/d/1liV8yUOaW7fbLM_RWH6Vey9CMdKO7Qw3Qsgsd1Pk-_U/export?format=csv&gid=2135879661';
 const DATES_CSV   = 'https://docs.google.com/spreadsheets/d/1liV8yUOaW7fbLM_RWH6Vey9CMdKO7Qw3Qsgsd1Pk-_U/export?format=csv&gid=1861237823';
@@ -1280,9 +1285,11 @@ function renderRegistrations(registrations) {
 }
 
 function parseCSV(text) {
+  // Remove BOM if present
+  text = text.replace(/^\uFEFF/, '');
   const lines = text.trim().replace(/\r\n/g, '\n').replace(/\r/g, '\n').split('\n');
   if (lines.length < 2) return [];
-  const headers = lines[0].split(',').map(h => h.trim().replace(/^"|"$/g, ''));
+  const headers = lines[0].split(',').map(h => h.trim().replace(/^"|"$/g, '').replace(/^\uFEFF/, ''));
   return lines.slice(1).map(line => {
     const cols = []; let cur = '', inQuote = false;
     for (let i = 0; i < line.length; i++) {
@@ -1296,14 +1303,18 @@ function parseCSV(text) {
 
 async function fetchResults() {
   try {
-    const res = await fetch(RESULTS_CSV);
+    const res = await fetch(csvUrl(RESULTS_CSV + '&t=' + Date.now()));
     const text = await res.text();
-    const firstLine = text.split('\n')[0].replace(/\r/g,'');
+    console.log('Results raw:', text.substring(0, 200));
+    const firstLine = text.replace(/^\uFEFF/,'').split('\n')[0].replace(/\r/g,'');
+    console.log('Results first line:', firstLine);
     if (!firstLine.includes('winner') && !firstLine.includes('Winner')) {
+      console.log('No winner column found, skipping');
       cachedResults = [];
       return;
     }
     const rows = parseCSV(text);
+    console.log('Results rows parsed:', rows.length, rows[0]);
     cachedResults = rows.map(function(r) {
       return {
         winner:     r.winner     || r.Winner     || '',
@@ -1314,12 +1325,13 @@ async function fetchResults() {
         timestamp:  r.timestamp  || r.Timestamp   || ''
       };
     }).filter(function(r) { return r.winner; });
-  } catch(e) { cachedResults = []; }
+    console.log('cachedResults:', cachedResults.length);
+  } catch(e) { console.error('fetchResults error:', e); cachedResults = []; }
 }
 
 async function fetchRegistrations() {
   try {
-    const res = await fetch(REG_CSV);
+    const res = await fetch(csvUrl(REG_CSV + '&t=' + Date.now()));
     const text = await res.text();
     cachedRegistrations = parseCSV(text).filter(r => r.firstName || r.lastName);
   } catch(e) { cachedRegistrations = []; }
@@ -1327,7 +1339,7 @@ async function fetchRegistrations() {
 
 async function fetchMatchDates() {
   try {
-    const res = await fetch(DATES_CSV);
+    const res = await fetch(csvUrl(DATES_CSV + '&t=' + Date.now()));
     const text = await res.text();
     const rows = parseCSV(text);
     cachedMatchDates = rows.map(function(r) {
@@ -1345,7 +1357,7 @@ async function fetchMatchDates() {
 
 async function fetchHandicaps() {
   try {
-    const res = await fetch(HDCP_CSV);
+    const res = await fetch(csvUrl(HDCP_CSV + '&t=' + Date.now()));
     const text = await res.text();
     const rows = parseCSV(text);
     // Build lookup: teamName -> array of players
@@ -1423,7 +1435,7 @@ function renderHandicaps() {
 
 async function fetchPayments() {
   try {
-    const res = await fetch(TEAMS_CSV);
+    const res = await fetch(csvUrl(TEAMS_CSV + '&t=' + Date.now()));
     const text = await res.text();
     const rows = parseCSV(text);
     cachedPayments = {};
