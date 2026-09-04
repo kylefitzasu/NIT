@@ -826,7 +826,7 @@
 
         <!-- QF M1 -->
         <div style="grid-column:1;grid-row:2;padding:3px 8px 3px 0;">
-          <div style="background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.1);border-radius:3px;padding:.5rem .8rem;font-size:.75rem;">
+          <div id="qf-m1" style="background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.1);border-radius:3px;padding:.5rem .8rem;font-size:.75rem;">
             <span style="font-size:.58rem;letter-spacing:.1em;text-transform:uppercase;color:rgba(245,240,232,.25);display:block;margin-bottom:.15rem;">QF &middot; M1</span>
             <span style="color:var(--gold-light);font-weight:600;">(1) Ray / Park</span> <span style="color:rgba(245,240,232,.3);font-size:.7rem;">vs</span> <span style="font-weight:500;">(8) Eck / Booghier</span>
           </div>
@@ -834,7 +834,7 @@
 
         <!-- QF M2 -->
         <div style="grid-column:1;grid-row:3;padding:3px 8px 3px 0;">
-          <div style="background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.1);border-radius:3px;padding:.5rem .8rem;font-size:.75rem;">
+          <div id="qf-m2" style="background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.1);border-radius:3px;padding:.5rem .8rem;font-size:.75rem;">
             <span style="font-size:.58rem;letter-spacing:.1em;text-transform:uppercase;color:rgba(245,240,232,.25);display:block;margin-bottom:.15rem;">QF &middot; M2</span>
             <span style="color:var(--gold-light);font-weight:600;">(4) Zalesky / Withey</span> <span style="color:rgba(245,240,232,.3);font-size:.7rem;">vs</span> <span style="font-weight:500;">(5) Dunsmore / Fitzpatrick</span>
           </div>
@@ -842,7 +842,7 @@
 
         <!-- QF M3 -->
         <div style="grid-column:1;grid-row:4;padding:3px 8px 3px 0;">
-          <div style="background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.1);border-radius:3px;padding:.5rem .8rem;font-size:.75rem;">
+          <div id="qf-m3" style="background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.1);border-radius:3px;padding:.5rem .8rem;font-size:.75rem;">
             <span style="font-size:.58rem;letter-spacing:.1em;text-transform:uppercase;color:rgba(245,240,232,.25);display:block;margin-bottom:.15rem;">QF &middot; M3</span>
             <span style="color:var(--gold-light);font-weight:600;">(3) Gervais / Sitzmann</span> <span style="color:rgba(245,240,232,.3);font-size:.7rem;">vs</span> <span style="font-weight:500;">(6) Wedeking / Purcell</span>
           </div>
@@ -850,7 +850,7 @@
 
         <!-- QF M4 -->
         <div style="grid-column:1;grid-row:5;padding:3px 8px 3px 0;">
-          <div style="background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.1);border-radius:3px;padding:.5rem .8rem;font-size:.75rem;">
+          <div id="qf-m4" style="background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.1);border-radius:3px;padding:.5rem .8rem;font-size:.75rem;">
             <span style="font-size:.58rem;letter-spacing:.1em;text-transform:uppercase;color:rgba(245,240,232,.25);display:block;margin-bottom:.15rem;">QF &middot; M4</span>
             <span style="color:var(--gold-light);font-weight:600;">(2) Minshall / Travis</span> <span style="color:rgba(245,240,232,.3);font-size:.7rem;">vs</span> <span style="font-weight:500;">(7) Insana / Sanduk</span>
           </div>
@@ -1396,6 +1396,7 @@ async function fetchHandicaps() {
     });
     renderHandicaps();
     renderScheduleHandicaps();
+    renderPlayoffHandicaps();
   } catch(e) { console.error('fetchHandicaps error:', e); }
 }
 
@@ -1495,6 +1496,50 @@ function renderPayments() {
       '<span style="color:#eb5757;font-weight:600;">&#8226; ' + unpaid + ' unpaid</span>' +
       ' &nbsp;&middot;&nbsp; <span style="color:rgba(245,240,232,.4);font-size:.78rem;">Venmo @kwfitzpatrick</span>';
   }
+}
+
+function renderPlayoffHandicaps() {
+  // Playoff matchups
+  const playoffMatches = [
+    { id: 'qf-m1', t1: 'Ray / Park',             t2: 'Eck / Booghier' },
+    { id: 'qf-m2', t1: 'Wedeking / Purcell',      t2: 'Gervais / Sitzmann' },
+    { id: 'qf-m3', t1: 'Dunsmore / Fitzpatrick',  t2: 'Zalesky / Withey' },
+    { id: 'qf-m4', t1: 'Minshall / Travis',        t2: 'Insana / Sanduk' },
+  ];
+
+  playoffMatches.forEach(function(match) {
+    const el = document.getElementById(match.id);
+    if (!el) return;
+    const d1 = cachedHandicaps[match.t1];
+    const d2 = cachedHandicaps[match.t2];
+    if (!d1 || !d2) return;
+
+    const ch1 = d1.teamCH, ch2 = d2.teamCH;
+    const diff = Math.abs(ch1 - ch2);
+
+    // Remove existing annotation
+    const existing = el.querySelector('.playoff-hdcp-info');
+    if (existing) existing.remove();
+
+    const info = document.createElement('div');
+    info.className = 'playoff-hdcp-info';
+    info.style.cssText = 'font-size:.68rem;color:rgba(245,240,232,.45);margin-top:.4rem;padding-top:.35rem;border-top:1px solid rgba(255,255,255,.06);';
+
+    const ch1display = ch1 < 0 ? '+' + Math.abs(ch1) : ch1;
+    const ch2display = ch2 < 0 ? '+' + Math.abs(ch2) : ch2;
+
+    let strokeLine = '';
+    if (diff === 0) {
+      strokeLine = '<span style="color:rgba(245,240,232,.3);">Even — no strokes</span>';
+    } else {
+      const receiver = ch1 > ch2 ? match.t1 : match.t2;
+      const short = receiver.split(' / ').map(function(n){ return n.split(' ').pop(); }).join('/');
+      strokeLine = '<span style="color:var(--gold-light);font-weight:600;">' + short + '</span> receives <strong style="color:var(--white);">' + diff + ' stroke' + (diff !== 1 ? 's' : '') + '</strong>';
+    }
+
+    info.innerHTML = '<span style="color:rgba(245,240,232,.35);">CH ' + ch1display + ' vs CH ' + ch2display + '</span> &nbsp;&mdash;&nbsp; ' + strokeLine;
+    el.appendChild(info);
+  });
 }
 
 function renderScheduleHandicaps() {
