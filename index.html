@@ -3,6 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self' 'unsafe-inline' 'unsafe-eval' https:; connect-src *; img-src * data:; font-src * data:;">
 <title>NIT SCOTCH — Summer Tournament 2026</title>
 
 <style>
@@ -970,8 +971,7 @@
 <script>
 const API = 'https://script.google.com/macros/s/AKfycbwHwRU64FnguK5C-SnmGILVSQeDqZaToEfEXilP5ROP3PiCZTNLxbi66bAXx88jrKJP/exec';
 function csvUrl(url) {
-  // Route through Apps Script to avoid CORS issues
-  return API + '?action=csv&url=' + encodeURIComponent(url);
+  return url;
 }
 
 const RESULTS_CSV = 'https://docs.google.com/spreadsheets/d/1liV8yUOaW7fbLM_RWH6Vey9CMdKO7Qw3Qsgsd1Pk-_U/export?format=csv&gid=0';
