@@ -1607,41 +1607,77 @@ function renderPlayoffHandicaps() {
 }
 
 function renderScheduleHandicaps() {
-  // Annotate each match card in the schedule with team handicaps + strokes
+  // Map of match results: 'Team1|Team2' -> {winner, loser, eh}
+  const RESULTS = {
+    'Ibsen / DeZengremel|Minshall / Travis':    {winner:'Ibsen / DeZengremel', eh:false},
+    'Insana / Sanduk|King / Meyer':              {winner:'Insana / Sanduk', eh:false},
+    'Gervais / Sitzmann|Wedeking / Purcell':    {winner:'Wedeking / Purcell', eh:false},
+    'Eck / Booghier|Broach / Bosch':            {winner:'Broach / Bosch', eh:false},
+    'Ray / Park|Fordham / Diehl':               {winner:'Ray / Park', eh:false},
+    'Zalesky / Withey|Hansen / Knotek':         {winner:'Zalesky / Withey', eh:false},
+    'Dunsmore / Fitzpatrick|Minshall / Travis': {winner:'Minshall / Travis', eh:false},
+    'Ibsen / DeZengremel|Insana / Sanduk':      {winner:'Insana / Sanduk', eh:true},
+    'Lindquist / Bowman|Wedeking / Purcell':    {winner:'Wedeking / Purcell', eh:false},
+    'Gervais / Sitzmann|Eck / Booghier':        {winner:'Gervais / Sitzmann', eh:true},
+    'Simpson / Shelley|Fordham / Diehl':        {winner:'Simpson / Shelley', eh:false},
+    'Ray / Park|Zalesky / Withey':              {winner:'Ray / Park', eh:false},
+    'Dunsmore / Fitzpatrick|King / Meyer':      {winner:'Dunsmore / Fitzpatrick', eh:false},
+    'Minshall / Travis|Insana / Sanduk':        {winner:'Minshall / Travis', eh:true},
+    'Lindquist / Bowman|Broach / Bosch':        {winner:'Lindquist / Bowman', eh:false},
+    'Wedeking / Purcell|Eck / Booghier':        {winner:'Eck / Booghier', eh:false},
+    'Simpson / Shelley|Hansen / Knotek':        {winner:'Simpson / Shelley', eh:false},
+    'Fordham / Diehl|Zalesky / Withey':         {winner:'Zalesky / Withey', eh:false},
+    'Dunsmore / Fitzpatrick|Insana / Sanduk':   {winner:'Dunsmore / Fitzpatrick', eh:false},
+    'King / Meyer|Ibsen / DeZengremel':         {winner:'King / Meyer', eh:false},
+    'Dunsmore / Fitzpatrick|Ibsen / DeZengremel':{winner:'Dunsmore / Fitzpatrick', eh:false},
+    'King / Meyer|Minshall / Travis':           {winner:'Minshall / Travis', eh:false},
+    'Lindquist / Bowman|Eck / Booghier':        {winner:'Eck / Booghier', eh:false},
+    'Broach / Bosch|Gervais / Sitzmann':        {winner:'Gervais / Sitzmann', eh:false},
+    'Lindquist / Bowman|Gervais / Sitzmann':    {winner:'Gervais / Sitzmann', eh:false},
+    'Broach / Bosch|Wedeking / Purcell':        {winner:'Wedeking / Purcell', eh:false},
+    'Simpson / Shelley|Zalesky / Withey':       {winner:'Zalesky / Withey', eh:false},
+    'Hansen / Knotek|Ray / Park':               {winner:'Ray / Park', eh:false},
+    'Simpson / Shelley|Ray / Park':             {winner:'Ray / Park', eh:false},
+    'Hansen / Knotek|Zalesky / Withey':         {winner:'Zalesky / Withey', eh:false},
+  };
+
   document.querySelectorAll('.match-card').forEach(function(card) {
     const teams = card.querySelectorAll('.match-team');
     if (teams.length < 2) return;
     const t1 = teams[0].textContent.trim();
     const t2 = teams[1].textContent.trim();
-    if (!cachedHandicaps[t1] || !cachedHandicaps[t2]) return;
-    const ch1 = cachedHandicaps[t1].teamCH;
-    const ch2 = cachedHandicaps[t2].teamCH;
-    const diff = Math.abs(ch1 - ch2);
-    const higherTeam = ch1 > ch2 ? t1 : (ch2 > ch1 ? t2 : null);
 
-    // Remove existing hdcp annotation if any
     const existing = card.querySelector('.match-hdcp-info');
     if (existing) existing.remove();
+
+    // Look up result
+    const key1 = t1 + '|' + t2;
+    const key2 = t2 + '|' + t1;
+    const result = RESULTS[key1] || RESULTS[key2];
 
     const info = document.createElement('div');
     info.className = 'match-hdcp-info';
     info.style.cssText = 'font-size:.68rem;color:rgba(245,240,232,.45);padding:.35rem .6rem .2rem;border-top:1px solid rgba(255,255,255,.06);margin-top:.3rem;';
 
-    let label1 = '<span style="color:rgba(245,240,232,.5);">CH ' + (ch1 < 0 ? '+' + Math.abs(ch1) : ch1) + '</span>';
-    let label2 = '<span style="color:rgba(245,240,232,.5);">CH ' + (ch2 < 0 ? '+' + Math.abs(ch2) : ch2) + '</span>';
-
-    let strokeLine = '';
-    if (diff === 0) {
-      strokeLine = '<span style="color:rgba(245,240,232,.3);">Even &mdash; no strokes</span>';
+    if (result) {
+      const loser = result.winner === t1 ? t2 : t1;
+      const wShort = result.winner.split(' / ').map(function(n){return n.split(' ').pop();}).join('/');
+      const lShort = loser.split(' / ').map(function(n){return n.split(' ').pop();}).join('/');
+      const ehBadge = result.eh ? ' <span style="font-size:.6rem;color:#f2c94c;background:rgba(242,201,76,.15);padding:.1rem .35rem;border-radius:2px;border:1px solid rgba(242,201,76,.3);">EH</span>' : '';
+      info.innerHTML = '<span style="color:var(--gold-light);font-weight:600;">' + wShort + '</span> <span style="color:rgba(245,240,232,.3);">def.</span> ' + lShort + ehBadge;
     } else {
-      const receivingTeam = ch1 > ch2 ? t1 : t2;
-      const givingTeam   = ch1 > ch2 ? t2 : t1;
-      // If the lower team has negative CH, they give strokes (diff is how many)
-      const short = receivingTeam.split(' / ').map(function(n){ return n.split(' ').pop(); }).join('/');
-      strokeLine = '<span style="color:var(--gold-light);font-weight:600;">' + short + '</span> receives <strong style="color:var(--white);">' + diff + ' stroke' + (diff !== 1 ? 's' : '') + '</strong>';
+      // Fall back to handicap strokes if no result
+      if (!cachedHandicaps[t1] || !cachedHandicaps[t2]) return;
+      const ch1 = cachedHandicaps[t1].teamCH, ch2 = cachedHandicaps[t2].teamCH;
+      const diff = Math.abs(ch1 - ch2);
+      if (diff === 0) {
+        info.innerHTML = '<span style="color:rgba(245,240,232,.3);">Even &mdash; no strokes</span>';
+      } else {
+        const receiver = ch1 > ch2 ? t1 : t2;
+        const short = receiver.split(' / ').map(function(n){return n.split(' ').pop();}).join('/');
+        info.innerHTML = '<span style="color:rgba(245,240,232,.5);">CH ' + ch1 + ' vs CH ' + ch2 + '</span> &mdash; <span style="color:var(--gold-light);">' + short + '</span> receives <strong>' + diff + ' stroke' + (diff!==1?'s':'') + '</strong>';
+      }
     }
-
-    info.innerHTML = label1 + ' &nbsp;vs&nbsp; ' + label2 + ' &nbsp;&mdash;&nbsp; ' + strokeLine;
     card.appendChild(info);
   });
 }
