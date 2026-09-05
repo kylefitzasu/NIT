@@ -571,27 +571,47 @@
     <div class="submit-box" style="margin-top:0;">
       <div style="font-family:'Bebas Neue',sans-serif;font-size:1rem;letter-spacing:.06em;color:var(--gold-light);margin-bottom:1.2rem;">Post Your Match Date</div>
 
-      <div class="form-group" style="margin-bottom:1rem;">
-        <label>Division</label>
-        <select id="cal-division" onchange="updateCalTeams()">
-          <option value="">Select division&hellip;</option>
-          <option value="Mountain">Mountain</option>
-          <option value="Lake">Lake</option>
-          <option value="Valley">Valley</option>
-        </select>
-      </div>
-
       <div class="form-row">
         <div class="form-group">
           <label>Your Team</label>
           <select id="cal-home">
-            <option value="">Select division first&hellip;</option>
+            <option value="">Select team&hellip;</option>
+            <option>Broach / Bosch</option>
+            <option>Dunsmore / Fitzpatrick</option>
+            <option>Eck / Booghier</option>
+            <option>Fordham / Diehl</option>
+            <option>Gervais / Sitzmann</option>
+            <option>Hansen / Knotek</option>
+            <option>Ibsen / DeZengremel</option>
+            <option>Insana / Sanduk</option>
+            <option>King / Meyer</option>
+            <option>Lindquist / Bowman</option>
+            <option>Minshall / Travis</option>
+            <option>Ray / Park</option>
+            <option>Simpson / Shelley</option>
+            <option>Wedeking / Purcell</option>
+            <option>Zalesky / Withey</option>
           </select>
         </div>
         <div class="form-group">
           <label>Opponent</label>
           <select id="cal-away">
-            <option value="">Select division first&hellip;</option>
+            <option value="">Select team&hellip;</option>
+            <option>Broach / Bosch</option>
+            <option>Dunsmore / Fitzpatrick</option>
+            <option>Eck / Booghier</option>
+            <option>Fordham / Diehl</option>
+            <option>Gervais / Sitzmann</option>
+            <option>Hansen / Knotek</option>
+            <option>Ibsen / DeZengremel</option>
+            <option>Insana / Sanduk</option>
+            <option>King / Meyer</option>
+            <option>Lindquist / Bowman</option>
+            <option>Minshall / Travis</option>
+            <option>Ray / Park</option>
+            <option>Simpson / Shelley</option>
+            <option>Wedeking / Purcell</option>
+            <option>Zalesky / Withey</option>
           </select>
         </div>
       </div>
@@ -1132,7 +1152,7 @@ const DIV_TEAMS = {
 };
 
 function updateCalTeams() {
-  const div = document.getElementById('cal-division').value;
+  // Division dropdown removed - teams now selected directly
   const homeEl = document.getElementById('cal-home');
   const awayEl = document.getElementById('cal-away');
   const teams = div ? DIV_TEAMS[div] : [];
@@ -1144,7 +1164,7 @@ function updateCalTeams() {
 }
 
 async function submitMatchDate() {
-  const division = document.getElementById('cal-division').value;
+  const division = '';
   const homeTeam = document.getElementById('cal-home').value;
   const awayTeam = document.getElementById('cal-away').value;
   const matchDate = document.getElementById('cal-date').value;
@@ -1152,7 +1172,7 @@ async function submitMatchDate() {
   const notes    = document.getElementById('cal-notes').value.trim();
   const btn = document.getElementById('calBtn');
 
-  if (!division) { showCalMsg('Please select a division.', false); return; }
+
   if (!homeTeam) { showCalMsg('Please select your team.', false); return; }
   if (!awayTeam) { showCalMsg('Please select your opponent.', false); return; }
   if (homeTeam === awayTeam) { showCalMsg('Your team and opponent cannot be the same.', false); return; }
@@ -1164,9 +1184,9 @@ async function submitMatchDate() {
   try {
     await fetch(API + '?type=matchdate&division=' + encodeURIComponent(division) + '&homeTeam=' + encodeURIComponent(homeTeam) + '&awayTeam=' + encodeURIComponent(awayTeam) + '&matchDate=' + encodeURIComponent(matchDate) + '&matchTime=' + encodeURIComponent(matchTime) + '&notes=' + encodeURIComponent(notes), { mode:'no-cors' });
     showCalMsg('Match date posted! Everyone can now see it in the calendar.', true);
-    document.getElementById('cal-division').value = '';
-    document.getElementById('cal-home').innerHTML = '<option value="">Select division first&hellip;</option>';
-    document.getElementById('cal-away').innerHTML = '<option value="">Select division first&hellip;</option>';
+
+    document.getElementById('cal-home').value = '';
+    document.getElementById('cal-away').value = '';
     document.getElementById('cal-date').value = '';
     document.getElementById('cal-time').value = '';
     document.getElementById('cal-notes').value = '';
