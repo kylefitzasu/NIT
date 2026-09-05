@@ -1271,15 +1271,49 @@ function sortStandings(th) {
   applySort();
 }
 
+// Official seeding order (handles tiebreakers h2h + EH)
+const SEED_ORDER = [
+  'Ray / Park',
+  'Minshall / Travis',
+  'Gervais / Sitzmann',
+  'Zalesky / Withey',
+  'Dunsmore / Fitzpatrick',
+  'Wedeking / Purcell',
+  'Insana / Sanduk',
+  'Eck / Booghier',
+  'Simpson / Shelley',
+  'Ibsen / DeZengremel',
+  'Fordham / Diehl',
+  'Broach / Bosch',
+  'King / Meyer',
+  'Lindquist / Bowman',
+  'Hansen / Knotek',
+];
+
 function applySort() {
   const sorted = [...standingsData].sort((a, b) => {
     let av = a[currentSortCol], bv = b[currentSortCol];
-    if (currentSortCol === 'team') { av = av.toLowerCase(); bv = bv.toLowerCase(); return currentSortDir === 'asc' ? av.localeCompare(bv) : bv.localeCompare(av); }
+    if (currentSortCol === 'team') {
+      av = av.toLowerCase(); bv = bv.toLowerCase();
+      return currentSortDir === 'asc' ? av.localeCompare(bv) : bv.localeCompare(av);
+    }
+    if (currentSortCol === 'pts' && currentSortDir === 'desc') {
+      // Use official seed order for pts desc (default view)
+      const ai = SEED_ORDER.indexOf(a.team), bi = SEED_ORDER.indexOf(b.team);
+      if (ai !== -1 && bi !== -1) return ai - bi;
+      if (ai !== -1) return -1;
+      if (bi !== -1) return 1;
+    }
     return currentSortDir === 'asc' ? av - bv : bv - av;
   });
-  const ranked = [...standingsData].sort((a,b) => b.pts - a.pts || b.w - a.w);
+
+  // Rank map uses seed order
   const rankMap = {};
-  ranked.forEach((t, i) => rankMap[t.team] = i + 1);
+  SEED_ORDER.forEach((team, i) => rankMap[team] = i + 1);
+  // Fill in any teams not in seed order
+  let nextRank = SEED_ORDER.length + 1;
+  standingsData.forEach(t => { if (!rankMap[t.team]) rankMap[t.team] = nextRank++; });
+
   const activeTh = document.querySelector('#standings-table thead th[data-col="' + currentSortCol + '"]');
   if (activeTh) {
     document.querySelectorAll('#standings-table thead th[data-col]').forEach(h => {
