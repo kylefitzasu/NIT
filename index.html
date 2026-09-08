@@ -358,7 +358,7 @@
         <div style="grid-column:2;grid-row:2/4;padding:3px 8px;align-self:center;">
           <div style="background:rgba(255,255,255,.05);border:1px solid rgba(201,146,42,.2);border-radius:3px;padding:.6rem .8rem;font-size:.75rem;">
             <span style="font-size:.58rem;letter-spacing:.1em;text-transform:uppercase;color:var(--gold);display:block;margin-bottom:.15rem;">SF &middot; M5</span>
-            <span style="color:rgba(245,240,232,.6);">W-M1</span> <span style="color:rgba(245,240,232,.3);font-size:.7rem;">vs</span> <span style="color:rgba(245,240,232,.6);">W-M2</span>
+            <span id="sf-m5-t1" style="color:rgba(245,240,232,.6);">W-M1</span> <span style="color:rgba(245,240,232,.3);font-size:.7rem;">vs</span> <span id="sf-m5-t2" style="color:rgba(245,240,232,.6);">W-M2</span>
           </div>
         </div>
 
@@ -366,7 +366,7 @@
         <div style="grid-column:2;grid-row:4/6;padding:3px 8px;align-self:center;">
           <div style="background:rgba(255,255,255,.05);border:1px solid rgba(201,146,42,.2);border-radius:3px;padding:.6rem .8rem;font-size:.75rem;">
             <span style="font-size:.58rem;letter-spacing:.1em;text-transform:uppercase;color:var(--gold);display:block;margin-bottom:.15rem;">SF &middot; M6</span>
-            <span style="color:rgba(245,240,232,.6);">W-M3</span> <span style="color:rgba(245,240,232,.3);font-size:.7rem;">vs</span> <span style="color:rgba(245,240,232,.6);">W-M4</span>
+            <span id="sf-m6-t1" style="color:rgba(245,240,232,.6);">W-M3</span> <span style="color:rgba(245,240,232,.3);font-size:.7rem;">vs</span> <span id="sf-m6-t2" style="color:rgba(245,240,232,.6);">W-M4</span>
           </div>
         </div>
 
@@ -375,7 +375,8 @@
           <div style="background:rgba(205,127,50,.1);border:1px solid rgba(205,127,50,.4);border-radius:4px;padding:.9rem 1rem;text-align:center;">
             <div style="font-size:.65rem;letter-spacing:.18em;text-transform:uppercase;color:#cd7f32;margin-bottom:.5rem;">&#129353; 3rd Place</div>
             <div style="font-family:'Bebas Neue',sans-serif;font-size:1.1rem;letter-spacing:.05em;color:var(--white);">M7</div>
-            <div style="font-size:.7rem;color:rgba(245,240,232,.4);margin-top:.3rem;">L-M5 vs L-M6</div>
+            <div id="third-matchup" style="font-size:.7rem;color:rgba(245,240,232,.4);margin-top:.3rem;">L-M5 vs L-M6</div>
+            <div id="third-result" style="display:none;margin-top:.4rem;font-size:.72rem;font-weight:600;color:#cd7f32;"></div>
             <div style="margin-top:.6rem;font-size:.62rem;letter-spacing:.1em;text-transform:uppercase;color:#cd7f32;background:rgba(205,127,50,.12);padding:.25rem .5rem;border-radius:2px;display:inline-block;">Semifinal Losers</div>
           </div>
         </div>
@@ -385,7 +386,8 @@
           <div style="background:rgba(201,146,42,.12);border:2px solid rgba(201,146,42,.5);border-radius:4px;padding:.9rem 1rem;text-align:center;">
             <div style="font-size:.65rem;letter-spacing:.18em;text-transform:uppercase;color:var(--gold);margin-bottom:.5rem;">&#127942; Championship</div>
             <div style="font-family:'Bebas Neue',sans-serif;font-size:1.1rem;letter-spacing:.05em;color:var(--white);">M8 Final</div>
-            <div style="font-size:.7rem;color:rgba(245,240,232,.4);margin-top:.3rem;">W-M5 vs W-M6</div>
+            <div id="champ-matchup" style="font-size:.7rem;color:rgba(245,240,232,.4);margin-top:.3rem;">W-M5 vs W-M6</div>
+            <div id="champ-result" style="display:none;margin-top:.4rem;font-size:.72rem;font-weight:600;color:var(--gold-light);"></div>
             <div style="margin-top:.6rem;font-size:.62rem;letter-spacing:.1em;text-transform:uppercase;color:var(--gold-light);background:rgba(201,146,42,.15);padding:.25rem .5rem;border-radius:2px;display:inline-block;">2026 NIT Champion</div>
           </div>
         </div>
@@ -1490,6 +1492,7 @@ async function fetchHandicaps() {
     renderHandicaps();
     renderScheduleHandicaps();
     renderPlayoffHandicaps();
+    renderPlayoffResults();
   } catch(e) { console.error('fetchHandicaps error:', e); }
 }
 
@@ -1588,6 +1591,124 @@ function renderPayments() {
       ' &nbsp;&middot;&nbsp; ' +
       '<span style="color:#eb5757;font-weight:600;">&#8226; ' + unpaid + ' unpaid</span>' +
       ' &nbsp;&middot;&nbsp; <span style="color:rgba(245,240,232,.4);font-size:.78rem;">Venmo @kwfitzpatrick</span>';
+  }
+}
+
+function renderPlayoffResults() {
+  // Playoff matchup definitions
+  const QF = [
+    { id:'qf-m1', t1:'Ray / Park',            t2:'Eck / Booghier' },
+    { id:'qf-m2', t1:'Zalesky / Withey',      t2:'Dunsmore / Fitzpatrick' },
+    { id:'qf-m3', t1:'Gervais / Sitzmann',    t2:'Wedeking / Purcell' },
+    { id:'qf-m4', t1:'Minshall / Travis',     t2:'Insana / Sanduk' },
+  ];
+
+  // Find result for a matchup from cachedResults
+  function findResult(t1, t2) {
+    return cachedResults.find(function(r) {
+      return (r.winner === t1 && r.loser === t2) || (r.winner === t2 && r.loser === t1);
+    });
+  }
+
+  function shortName(team) {
+    return team.split(' / ').map(function(n){ return n.split(' ').pop(); }).join('/');
+  }
+
+  function applyResult(cardId, result, t1, t2) {
+    var card = document.getElementById(cardId);
+    if (!card) return;
+    var existing = card.querySelector('.playoff-result-badge');
+    if (existing) existing.remove();
+    if (!result) return;
+
+    var loser = result.winner === t1 ? t2 : t1;
+    var eh = result.extraHoles ? ' <span style="font-size:.6rem;color:#f2c94c;background:rgba(242,201,76,.15);padding:.1rem .35rem;border-radius:2px;border:1px solid rgba(242,201,76,.3);">EH</span>' : '';
+
+    // Style winner in bracket
+    var teams = card.querySelectorAll('.match-team');
+    teams.forEach(function(el) {
+      var name = el.textContent.replace(/^\(\d+\)\s*/, '').trim();
+      if (name === result.winner) {
+        el.style.color = 'var(--gold-light)';
+        el.style.fontWeight = '700';
+      } else {
+        el.style.color = 'rgba(245,240,232,.3)';
+        el.style.textDecoration = 'line-through';
+      }
+    });
+
+    // Add result badge
+    var badge = document.createElement('div');
+    badge.className = 'playoff-result-badge';
+    badge.style.cssText = 'font-size:.68rem;margin-top:.4rem;padding-top:.35rem;border-top:1px solid rgba(255,255,255,.06);';
+    badge.innerHTML = '<span style="color:var(--gold-light);font-weight:600;">' + shortName(result.winner) + '</span> <span style="color:rgba(245,240,232,.3);">def.</span> ' + shortName(loser) + eh;
+    card.appendChild(badge);
+    return result.winner;
+  }
+
+  // Process QF results and collect winners/losers
+  var qfWinners = {}, qfLosers = {};
+  QF.forEach(function(m) {
+    var res = findResult(m.t1, m.t2);
+    var winner = applyResult(m.id, res, m.t1, m.t2);
+    if (winner) {
+      qfWinners[m.id] = winner;
+      qfLosers[m.id] = winner === m.t1 ? m.t2 : m.t1;
+    }
+  });
+
+  // Update SF slots with QF winners
+  var sfM5t1 = document.getElementById('sf-m5-t1');
+  var sfM5t2 = document.getElementById('sf-m5-t2');
+  var sfM6t1 = document.getElementById('sf-m6-t1');
+  var sfM6t2 = document.getElementById('sf-m6-t2');
+
+  if (sfM5t1 && qfWinners['qf-m1']) sfM5t1.textContent = shortName(qfWinners['qf-m1']);
+  if (sfM5t2 && qfWinners['qf-m2']) sfM5t2.textContent = shortName(qfWinners['qf-m2']);
+  if (sfM6t1 && qfWinners['qf-m3']) sfM6t1.textContent = shortName(qfWinners['qf-m3']);
+  if (sfM6t2 && qfWinners['qf-m4']) sfM6t2.textContent = shortName(qfWinners['qf-m4']);
+
+  // Check SF results
+  var sf5t1 = qfWinners['qf-m1'], sf5t2 = qfWinners['qf-m2'];
+  var sf6t1 = qfWinners['qf-m3'], sf6t2 = qfWinners['qf-m4'];
+
+  var sf5res = sf5t1 && sf5t2 ? findResult(sf5t1, sf5t2) : null;
+  var sf6res = sf6t1 && sf6t2 ? findResult(sf6t1, sf6t2) : null;
+
+  // Update 3rd place matchup
+  var thirdMatchup = document.getElementById('third-matchup');
+  var thirdResult  = document.getElementById('third-result');
+  var champMatchup = document.getElementById('champ-matchup');
+  var champResult  = document.getElementById('champ-result');
+
+  if (sf5res && sf6res) {
+    var sf5loser = sf5res.winner === sf5t1 ? sf5t2 : sf5t1;
+    var sf6loser = sf6res.winner === sf6t1 ? sf6t2 : sf6t1;
+    var sf5winner = sf5res.winner, sf6winner = sf6res.winner;
+
+    // Update 3rd place
+    if (thirdMatchup) thirdMatchup.textContent = shortName(sf5loser) + ' vs ' + shortName(sf6loser);
+
+    // Check 3rd place result
+    var thirdRes = findResult(sf5loser, sf6loser);
+    if (thirdRes && thirdResult) {
+      var tloser = thirdRes.winner === sf5loser ? sf6loser : sf5loser;
+      var teh = thirdRes.extraHoles ? ' (EH)' : '';
+      thirdResult.textContent = shortName(thirdRes.winner) + ' def. ' + shortName(tloser) + teh;
+      thirdResult.style.display = 'block';
+    }
+
+    // Update championship
+    if (champMatchup) champMatchup.textContent = shortName(sf5winner) + ' vs ' + shortName(sf6winner);
+
+    // Check championship result
+    var champRes = findResult(sf5winner, sf6winner);
+    if (champRes && champResult) {
+      var closer = champRes.winner === sf5winner ? sf6winner : sf5winner;
+      var ceh = champRes.extraHoles ? ' (EH)' : '';
+      champResult.innerHTML = '&#127942; ' + shortName(champRes.winner) + ' def. ' + shortName(closer) + ceh;
+      champResult.style.display = 'block';
+    }
   }
 }
 
