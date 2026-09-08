@@ -1603,10 +1603,15 @@ function renderPlayoffResults() {
     { id:'qf-m4', t1:'Minshall / Travis',     t2:'Insana / Sanduk' },
   ];
 
-  // Find result for a matchup from cachedResults
+  // Find result for a matchup - PLAYOFF MATCHES ONLY (after Aug 31, 2026)
   function findResult(t1, t2) {
     return cachedResults.find(function(r) {
-      return (r.winner === t1 && r.loser === t2) || (r.winner === t2 && r.loser === t1);
+      var isMatch = (r.winner === t1 && r.loser === t2) || (r.winner === t2 && r.loser === t1);
+      if (!isMatch) return false;
+      // Only use results from Sept 1 onwards (playoff period)
+      if (!r.date && !r.timestamp) return false;
+      var d = new Date(r.date || r.timestamp);
+      return d >= new Date('2026-09-01');
     });
   }
 
